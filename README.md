@@ -136,9 +136,12 @@ enabled_plugins = ['area', 'datafeed', 'atc_extras']
 ```bash
 git clone git@github.com:SaeedGhazi/bluesky.git
 cd bluesky
-python -m venv venv #(python3.11 , requirements(Python3.11).txt)
+sudo pacman -S pyenv
+pyenv install 3.11.13
+pyenv local 3.11.13
+python -m venv .venv #(python3.11 , requirements(Python3.11).txt)
 source venv/bin/activate
-pip install -e .
+pip install -r requirements(Python3.11).txt
 
 # مهم: BlueSky مسیرهای plugin/cache را نسبت به working directory حل می‌کند
 # همیشه از ریشهٔ همین پوشه اجرا کنید:
