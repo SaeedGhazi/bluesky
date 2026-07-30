@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BlueSky</string>
+   <string>🇮🇷 IRAN Air Traffic Simulator 🛪</string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
@@ -42,7 +42,7 @@
        </sizepolicy>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="handleWidth">
        <number>12</number>
@@ -55,7 +55,7 @@
         </sizepolicy>
        </property>
        <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
+        <enum>Qt::FocusPolicy::NoFocus</enum>
        </property>
       </widget>
       <widget class="QToolBox" name="databox">
@@ -78,7 +78,7 @@
         </size>
        </property>
        <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
+        <enum>Qt::FocusPolicy::NoFocus</enum>
        </property>
        <property name="autoFillBackground">
         <bool>true</bool>
@@ -87,10 +87,10 @@
         <string notr="true"/>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -106,12 +106,12 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>345</height>
+          <width>256</width>
+          <height>347</height>
          </rect>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <attribute name="label">
          <string>Aircraft</string>
@@ -122,12 +122,12 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>345</height>
+          <width>256</width>
+          <height>347</height>
          </rect>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="autoFillBackground">
          <bool>true</bool>
@@ -141,12 +141,12 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>345</height>
+          <width>256</width>
+          <height>347</height>
          </rect>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <attribute name="label">
          <string>Stack</string>
@@ -161,7 +161,7 @@
        <number>1</number>
       </property>
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
       </property>
       <item>
        <widget class="QLabel" name="siminfoLabel">
@@ -172,7 +172,7 @@
          </size>
         </property>
         <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
         </property>
         <property name="text">
          <string/>
@@ -191,10 +191,10 @@
          <string/>
         </property>
         <property name="textFormat">
-         <enum>Qt::AutoText</enum>
+         <enum>Qt::TextFormat::AutoText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -207,7 +207,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>pan left</string>
@@ -226,7 +226,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>pan right</string>
@@ -245,7 +245,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>pan up</string>
@@ -264,7 +264,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>pan down</string>
@@ -283,7 +283,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>zoom in</string>
@@ -302,7 +302,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>zoom out</string>
@@ -336,16 +336,16 @@
     </size>
    </property>
    <property name="contextMenuPolicy">
-    <enum>Qt::NoContextMenu</enum>
+    <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
    </property>
    <property name="floating">
     <bool>false</bool>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetVerticalTitleBar</set>
+    <set>QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetVerticalTitleBar</set>
    </property>
    <property name="allowedAreas">
-    <set>Qt::BottomDockWidgetArea</set>
+    <set>Qt::DockWidgetArea::BottomDockWidgetArea</set>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -358,7 +358,7 @@
      </sizepolicy>
     </property>
     <property name="contextMenuPolicy">
-     <enum>Qt::NoContextMenu</enum>
+     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <property name="spacing">
@@ -388,7 +388,7 @@
         <bool>false</bool>
        </property>
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="handleWidth">
         <number>12</number>
@@ -405,7 +405,7 @@
           <number>0</number>
          </property>
          <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -439,13 +439,13 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="tabPosition">
-            <enum>QTabWidget::West</enum>
+            <enum>QTabWidget::TabPosition::West</enum>
            </property>
            <property name="tabShape">
-            <enum>QTabWidget::Rounded</enum>
+            <enum>QTabWidget::TabShape::Rounded</enum>
            </property>
            <property name="currentIndex">
             <number>0</number>
@@ -468,7 +468,7 @@
             </attribute>
             <layout class="QGridLayout" name="gridLayout">
              <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
+              <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -500,7 +500,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>start simulation</string>
@@ -509,7 +509,7 @@
                 <string>Op</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -528,7 +528,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>pause simulation</string>
@@ -537,7 +537,7 @@
                 <string>Hold</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -556,7 +556,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>fast forward</string>
@@ -565,7 +565,7 @@
                 <string>FF</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -584,7 +584,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>fast forward (10 sec)</string>
@@ -593,7 +593,7 @@
                 <string>FF10</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -612,7 +612,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>open scenario file</string>
@@ -621,7 +621,7 @@
                 <string>IC</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -640,7 +640,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>open previous scenario</string>
@@ -649,7 +649,7 @@
                 <string>IC IC</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -673,7 +673,7 @@
             </attribute>
             <layout class="QGridLayout" name="gridLayout_2">
              <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
+              <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -705,7 +705,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>Show/hide aircraft</string>
@@ -714,7 +714,7 @@
                 <string>AC</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -733,7 +733,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>Show/hide protected zones</string>
@@ -742,7 +742,7 @@
                 <string>PZ</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -761,7 +761,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>Show airports (all/large/off)</string>
@@ -770,7 +770,7 @@
                 <string>APT</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -789,7 +789,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>show waypoints (all/navaids/off)</string>
@@ -798,7 +798,7 @@
                 <string>WPT</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -817,7 +817,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>Show/hide labels</string>
@@ -826,7 +826,7 @@
                 <string>LBL</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -845,7 +845,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="toolTip">
                 <string>Toggle sattelite background</string>
@@ -854,7 +854,7 @@
                 <string>MAP</string>
                </property>
                <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonTextUnderIcon</enum>
+                <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
@@ -878,7 +878,7 @@
             </attribute>
             <layout class="QGridLayout" name="gridLayout_3">
              <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
+              <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -910,7 +910,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C1</string>
@@ -932,7 +932,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C2</string>
@@ -954,7 +954,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C3</string>
@@ -976,7 +976,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C4</string>
@@ -998,7 +998,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C5</string>
@@ -1020,7 +1020,7 @@
                 </size>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
+                <enum>Qt::FocusPolicy::NoFocus</enum>
                </property>
                <property name="text">
                 <string>C6</string>
@@ -1056,7 +1056,7 @@
              <number>1</number>
             </property>
             <property name="sizeConstraint">
-             <enum>QLayout::SetMinimumSize</enum>
+             <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
             </property>
             <property name="leftMargin">
              <number>0</number>
@@ -1188,10 +1188,10 @@
                </font>
               </property>
               <property name="focusPolicy">
-               <enum>Qt::ClickFocus</enum>
+               <enum>Qt::FocusPolicy::ClickFocus</enum>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
+               <enum>Qt::LayoutDirection::LeftToRight</enum>
               </property>
               <property name="undoRedoEnabled">
                <bool>false</bool>
@@ -1200,7 +1200,7 @@
                <bool>true</bool>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextBrowserInteraction|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
               </property>
              </widget>
             </item>
@@ -1292,31 +1292,31 @@
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="focusPolicy">
-               <enum>Qt::ClickFocus</enum>
+               <enum>Qt::FocusPolicy::ClickFocus</enum>
               </property>
               <property name="autoFillBackground">
                <bool>false</bool>
               </property>
               <property name="inputMethodHints">
-               <set>Qt::ImhNone</set>
+               <set>Qt::InputMethodHint::ImhNone</set>
               </property>
               <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
+               <enum>QFrame::Shape::NoFrame</enum>
               </property>
               <property name="lineWidth">
                <number>0</number>
               </property>
               <property name="verticalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
+               <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
               </property>
               <property name="horizontalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
+               <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
               </property>
               <property name="readOnly">
                <bool>false</bool>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::TextEditorInteraction</set>
+               <set>Qt::TextInteractionFlag::TextEditorInteraction</set>
               </property>
              </widget>
             </item>
@@ -1345,13 +1345,13 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
+         <enum>QFrame::Shadow::Plain</enum>
         </property>
         <property name="indentation">
          <number>8</number>
@@ -1376,7 +1376,7 @@
      <x>0</x>
      <y>0</y>
      <width>963</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1885,7 +1885,7 @@
     </hint>
    </hints>
   </connection>
-    <connection>
+  <connection>
    <sender>zoomout</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
