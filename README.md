@@ -136,7 +136,7 @@ enabled_plugins = ['area', 'datafeed', 'atc_extras']
 ```bash
 git clone git@github.com:SaeedGhazi/bluesky.git
 cd bluesky
-python -m venv venv
+python -m venv venv #(python3.11 , requirements(Python3.11).txt)
 source venv/bin/activate
 pip install -e .
 
