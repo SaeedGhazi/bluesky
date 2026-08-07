@@ -137,6 +137,7 @@ enabled_plugins = ['area', 'datafeed', 'atc_extras']
 git clone git@github.com:SaeedGhazi/bluesky.git
 cd bluesky
 sudo pacman -S pyenv
+sudo pacman -S base-devel openssl zlib xz tk libffi sqlite readline
 # انتخاب نسخه
 pyenv local 3.11.13
 # اطمینان از نسخه
