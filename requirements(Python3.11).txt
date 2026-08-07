@@ -1,5 +1,6 @@
 # PYTHON SHOULD BE 3.11
 # sudo pacman -S pyenv
+# pyenv install 3.11.13
 # pyenv local 3.11
 # python -m venv v311
 # source v311/bin/activate
