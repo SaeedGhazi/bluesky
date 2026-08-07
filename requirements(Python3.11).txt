@@ -1,5 +1,6 @@
 # PYTHON SHOULD BE 3.11
 # sudo pacman -S pyenv
+# sudo pacman -S base-devel openssl zlib xz tk libffi sqlite readline
 # pyenv install 3.11.13
 # pyenv local 3.11
 # python -m venv v311
