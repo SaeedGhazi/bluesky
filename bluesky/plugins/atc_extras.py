@@ -2,11 +2,32 @@ import numpy as np
 import zmq
 import json
 import logging
+import threading
+import queue
+import uuid
+import time
 from bluesky import core, stack, traf, sim
 
 # ================================================================
-#  ATC EXTRAS Plugin — Version 2.3
-#  ZMQ PUB port 11005
+#  ATC EXTRAS Plugin — Version 2.4
+#  ZMQ PUB port 11005  — تلمتری خروجی (بدون تغییر)
+#  ZMQ REP port 11010  — 🆕 گیرندهٔ فرمان ورودی از BLIP_DRIVER (Phase 0)
+# ================================================================
+#
+#  چرا REP روی ۱۱۰۱۰ و نه فراخوانی مستقیم stack.stack() از thread دیگر؟
+#  ------------------------------------------------------------------
+#  BlueSky تک‌رشته‌ای (single-threaded) است؛ فراخوانی stack.stack() از یک
+#  thread جدا (مثل thread گوش‌دادن ZMQ) می‌تواند وضعیت داخلی sim را خراب
+#  کند. پس الگو این است:
+#    ۱) یک thread جدا فقط socket را می‌شنود و پیام متنی را در یک صف
+#       thread-safe (queue.Queue) می‌گذارد — و منتظر می‌ماند.
+#    ۲) یک core.timed_function (که توسط خودِ BlueSky در thread اصلی صدا
+#       زده می‌شود — دقیقاً همان الگوی atc_telemetry موجود) هر چند دهم
+#       ثانیه صف را خالی می‌کند و stack.stack() را از همان thread اصلی
+#       فرا می‌خواند.
+#    ۳) نتیجه (موفق/خطا) از طریق یک threading.Event به thread شنونده
+#       برگردانده می‌شود تا REP بتواند واقعاً پاسخ synchronous بدهد.
+#
 # ================================================================
 
 logger = logging.getLogger("ATC_EXTRAS")
@@ -19,6 +40,17 @@ class ATCExtras(core.Entity):
         self.socket  = self.context.socket(zmq.PUB)
         self.socket.bind("tcp://*:11005")
 
+        # ---- 🆕 گیرندهٔ فرمان ورودی از BLIP_DRIVER ----
+        self._cmd_queue    = queue.Queue()     # (request_id, command_text)
+        self._cmd_results  = {}                # request_id -> {"event": Event, "result": str}
+        self._cmd_results_lock = threading.Lock()
+
+        self._cmd_thread = threading.Thread(
+            target=self._cmd_listener_loop, daemon=True, name="bd-cmd-listener"
+        )
+        self._cmd_thread.start()
+        logger.info("[BD_CMD] Command listener started on tcp://*:11010")
+
         with self.settrafarrays():
             self.squawk     = np.array([], dtype=object)
             self.situation  = np.array([], dtype=object)
@@ -26,6 +58,65 @@ class ATCExtras(core.Entity):
             self.ident_time = np.array([], dtype=float)
             self.cfl        = np.array([], dtype=float)
             self.hdg        = np.array([], dtype=float)  # heading — از traf.hdg
+
+    # ------------------------------------------------------------------
+    # 🆕 BD Command Channel — thread شنونده (فقط صف را پر می‌کند، هرگز
+    # مستقیم stack.stack() را از این thread صدا نمی‌زند)
+    # ------------------------------------------------------------------
+    def _cmd_listener_loop(self):
+        ctx = zmq.Context.instance()
+        rep = ctx.socket(zmq.REP)
+        rep.bind("tcp://*:11010")
+
+        while True:
+            try:
+                cmd_text = rep.recv_string()
+            except Exception as exc:
+                logger.error(f"[BD_CMD] recv error: {exc}")
+                continue
+
+            req_id = str(uuid.uuid4())
+            done_event = threading.Event()
+            with self._cmd_results_lock:
+                self._cmd_results[req_id] = {"event": done_event, "result": None}
+
+            self._cmd_queue.put((req_id, cmd_text))
+
+            # حداکثر ۲ ثانیه منتظر بمان تا timed_function صف را خالی کند
+            got_result = done_event.wait(timeout=2.0)
+            with self._cmd_results_lock:
+                entry = self._cmd_results.pop(req_id, None)
+
+            if not got_result or entry is None:
+                rep.send_string("ERROR: timeout در پردازش داخلی BlueSky (صف خالی نشد)")
+            else:
+                rep.send_string(entry["result"])
+
+    # ------------------------------------------------------------------
+    # 🆕 این تابع توسط خودِ BlueSky در thread اصلی sim صدا زده می‌شود —
+    # دقیقاً همان الگوی atc_telemetry پایین‌تر. اینجا تنها جایی است که
+    # واقعاً stack.stack() فراخوانی می‌شود.
+    # ------------------------------------------------------------------
+    @core.timed_function(name='bd_cmd_drain', dt=0.2)
+    def _drain_cmd_queue(self):
+        while True:
+            try:
+                req_id, cmd_text = self._cmd_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            try:
+                stack.stack(cmd_text)
+                result = f"OK: {cmd_text}"
+            except Exception as exc:  # noqa: BLE001 — این یک لایهٔ مرزی است
+                result = f"ERROR: {exc}"
+                logger.error(f"[BD_CMD] اجرای «{cmd_text}» با خطا مواجه شد: {exc}")
+
+            with self._cmd_results_lock:
+                entry = self._cmd_results.get(req_id)
+                if entry is not None:
+                    entry["result"] = result
+                    entry["event"].set()
 
     def create(self, n=1):
         super().create(n)
