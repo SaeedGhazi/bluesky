@@ -239,6 +239,7 @@ def thread_core_reader():
                         "wpts"     : ex.get("wpts",      []),
                         "cfl"      : ex.get("cfl",       0.0),
                         "blipdriver": ex.get("blipdriver", ""),  # 🆕 بند ۹ (2026-08-15)
+                        "sqkmode": ex.get("sqkmode", "SQK_AC"),  # 🆕 بند ۵ (2026-08-17)
                     })
 
             latest_aircraft = aircraft_list
@@ -275,6 +276,7 @@ def build_payload(aircraft: list, sim_time: str) -> str:
         "macnext"  : [a["nextwp"]    for a in aircraft],
         "maccfl"   : [a["cfl"]       for a in aircraft],
         "macblipdrv": [a["blipdriver"] for a in aircraft],  # 🆕 بند ۹ (2026-08-15)
+        "macsqkmode": [a["sqkmode"]    for a in aircraft],  # 🆕 بند ۵ (2026-08-17)
     })
 
 
