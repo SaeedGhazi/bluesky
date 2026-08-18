@@ -63,6 +63,10 @@ class ATCExtras(core.Entity):
             # فقط در نمونه‌ای نمایش داده می‌شود که این مقدار با
             # BD_INSTANCE_NAME آن نمونه مطابقت داشته باشد.
             self.blipdriver = np.array([], dtype=object)
+            # 🆕 بند ۵ (2026-08-17): حالت نظارتی transponder — یکی از
+            # SQK_A/SQK_AC/SQK_SNBY/SQK_ADSB/SQK_MODES/SQK_PSR. پیش‌فرض
+            # SQK_AC طبق خواستهٔ کاربر.
+            self.sqkmode = np.array([], dtype=object)
 
     # ------------------------------------------------------------------
     # 🆕 BD Command Channel — thread شنونده (فقط صف را پر می‌کند، هرگز
@@ -132,6 +136,7 @@ class ATCExtras(core.Entity):
         self.cfl[-n:]        = [0.0]     * n
         self.hdg[-n:]        = [0.0]     * n
         self.blipdriver[-n:] = [""]      * n
+        self.sqkmode[-n:]    = ["SQK_AC"] * n
 
     @stack.command(name='SQWK')
     def sqwk(self, idx: 'acid', code):
@@ -153,6 +158,23 @@ class ATCExtras(core.Entity):
             for i in idx: self.blipdriver[i] = name
         else: self.blipdriver[idx] = name
         return True, f"BLIP_DRIVER instance set to {name}"
+
+    @stack.command(name='SQKMODE')
+    def sqkmode_cmd(self, idx: 'acid', mode: str):
+        """
+        🆕 بند ۵ (2026-08-17): حالت نظارتی transponder را ست می‌کند —
+        یکی از SQK_A/SQK_AC/SQK_SNBY/SQK_ADSB/SQK_MODES/SQK_PSR.
+        دقیقاً هم‌الگوی BLIPDRV بالا. مصرف‌کننده: flat(BlueSky).html —
+        وقتی مقدار SQK_A باشد باید ارتفاع/ROC/D را پنهان و علامت سؤال
+        نشان دهد (طبق خواستهٔ کاربر؛ تغییر خودِ flat(BlueSky).html در این
+        نشست انجام نشده — این دستور فقط دادهٔ لازم را در دسترس می‌گذارد).
+        مثال استفاده در stack: SQKMODE IRA234 SQK_A
+        """
+        name = str(mode).strip().upper()
+        if isinstance(idx, list):
+            for i in idx: self.sqkmode[i] = name
+        else: self.sqkmode[idx] = name
+        return True, f"Surveillance mode set to {name}"
 
     @stack.command(name='SITSIT')
     def sitsit(self, idx: 'acid', situation: str):
@@ -410,6 +432,7 @@ class ATCExtras(core.Entity):
                 "wpts"     : wpts_val,
                 "hdg"      : round(float(self.hdg[i]), 1),
                 "blipdriver": str(self.blipdriver[i]),  # 🆕 بند ۹
+                "sqkmode": str(self.sqkmode[i]),  # 🆕 بند ۵ (2026-08-17)
             }
 
         self.socket.send_string(f"EXTRADATA {json.dumps(payload)}")
