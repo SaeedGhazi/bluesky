@@ -238,6 +238,7 @@ def thread_core_reader():
                         "eta"      : ex.get("eta",       ""),
                         "wpts"     : ex.get("wpts",      []),
                         "cfl"      : ex.get("cfl",       0.0),
+                        "blipdriver": ex.get("blipdriver", ""),  # 🆕 بند ۹ (2026-08-15)
                     })
 
             latest_aircraft = aircraft_list
@@ -273,6 +274,7 @@ def build_payload(aircraft: list, sim_time: str) -> str:
         "macwpts"  : [a["wpts"]      for a in aircraft],
         "macnext"  : [a["nextwp"]    for a in aircraft],
         "maccfl"   : [a["cfl"]       for a in aircraft],
+        "macblipdrv": [a["blipdriver"] for a in aircraft],  # 🆕 بند ۹ (2026-08-15)
     })
 
 
