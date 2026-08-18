@@ -58,6 +58,11 @@ class ATCExtras(core.Entity):
             self.ident_time = np.array([], dtype=float)
             self.cfl        = np.array([], dtype=float)
             self.hdg        = np.array([], dtype=float)  # heading — از traf.hdg
+            # 🆕 بند ۹ (2026-08-15): تفکیک ترافیک بین چند نمونهٔ BLIP_DRIVER
+            # (RBDR1..4 برای BlueSky، TBDR1..4 برای FlightGear). یک پرواز
+            # فقط در نمونه‌ای نمایش داده می‌شود که این مقدار با
+            # BD_INSTANCE_NAME آن نمونه مطابقت داشته باشد.
+            self.blipdriver = np.array([], dtype=object)
 
     # ------------------------------------------------------------------
     # 🆕 BD Command Channel — thread شنونده (فقط صف را پر می‌کند، هرگز
@@ -126,6 +131,7 @@ class ATCExtras(core.Entity):
         self.ident_time[-n:] = [0.0]     * n
         self.cfl[-n:]        = [0.0]     * n
         self.hdg[-n:]        = [0.0]     * n
+        self.blipdriver[-n:] = [""]      * n
 
     @stack.command(name='SQWK')
     def sqwk(self, idx: 'acid', code):
@@ -134,6 +140,19 @@ class ATCExtras(core.Entity):
             for i in idx: self.squawk[i] = str_code
         else: self.squawk[idx] = str_code
         return True, f"Squawk updated to {str_code}"
+
+    @stack.command(name='BLIPDRV')
+    def blipdrv(self, idx: 'acid', instance_name: str):
+        """
+        🆕 بند ۹ (2026-08-15): پرواز را به یک نمونهٔ BLIP_DRIVER خاص
+        متعلق می‌کند (مثلاً "RBDR1"). دقیقاً هم‌الگوی SQWK بالا.
+        مثال استفاده در stack: BLIPDRV IRA234 RBDR1
+        """
+        name = str(instance_name).strip().upper()
+        if isinstance(idx, list):
+            for i in idx: self.blipdriver[i] = name
+        else: self.blipdriver[idx] = name
+        return True, f"BLIP_DRIVER instance set to {name}"
 
     @stack.command(name='SITSIT')
     def sitsit(self, idx: 'acid', situation: str):
@@ -390,6 +409,7 @@ class ATCExtras(core.Entity):
                 "eta"      : eta_val,
                 "wpts"     : wpts_val,
                 "hdg"      : round(float(self.hdg[i]), 1),
+                "blipdriver": str(self.blipdriver[i]),  # 🆕 بند ۹
             }
 
         self.socket.send_string(f"EXTRADATA {json.dumps(payload)}")
