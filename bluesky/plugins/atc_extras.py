@@ -67,6 +67,11 @@ class ATCExtras(core.Entity):
             # SQK_A/SQK_AC/SQK_SNBY/SQK_ADSB/SQK_MODES/SQK_PSR. پیش‌فرض
             # SQK_AC طبق خواستهٔ کاربر.
             self.sqkmode = np.array([], dtype=object)
+            # 🆕 بند ۵ (2026-08-20): موقعیت کنترلی (RCP — Radar Control
+            # Position) که این پرواز زیرنظرش است. مستقل از blipdriver
+            # (که «کدام نمونهٔ BLIP_DRIVER» را کنترل می‌کند)؛ این یکی
+            # برای فیلتر/handover سمت نقشه (flat_sim.html) است.
+            self.rcp = np.array([], dtype=object)
 
     # ------------------------------------------------------------------
     # 🆕 BD Command Channel — thread شنونده (فقط صف را پر می‌کند، هرگز
@@ -137,6 +142,7 @@ class ATCExtras(core.Entity):
         self.hdg[-n:]        = [0.0]     * n
         self.blipdriver[-n:] = [""]      * n
         self.sqkmode[-n:]    = ["SQK_AC"] * n
+        self.rcp[-n:]        = [""]       * n
 
     @stack.command(name='SQWK')
     def sqwk(self, idx: 'acid', code):
@@ -175,6 +181,21 @@ class ATCExtras(core.Entity):
             for i in idx: self.sqkmode[i] = name
         else: self.sqkmode[idx] = name
         return True, f"Surveillance mode set to {name}"
+
+    @stack.command(name='RCP')
+    def rcp_cmd(self, idx: 'acid', rcp_name: str):
+        """
+        🆕 بند ۵ (2026-08-20): موقعیت کنترلی (RCP) پرواز را ست می‌کند —
+        دقیقاً هم‌الگوی BLIPDRV/SQKMODE. مستقل از blipdriver است: RCP
+        برای فیلتر/handover سمت نقشه (flat_sim.html) استفاده می‌شود، نه
+        اینکه کدام BLIP_DRIVER فرمان‌دهی می‌کند.
+        مثال استفاده در stack: RCP IRA234 RCP1
+        """
+        name = str(rcp_name).strip().upper()
+        if isinstance(idx, list):
+            for i in idx: self.rcp[i] = name
+        else: self.rcp[idx] = name
+        return True, f"RCP set to {name}"
 
     @stack.command(name='SITSIT')
     def sitsit(self, idx: 'acid', situation: str):
@@ -433,6 +454,7 @@ class ATCExtras(core.Entity):
                 "hdg"      : round(float(self.hdg[i]), 1),
                 "blipdriver": str(self.blipdriver[i]),  # 🆕 بند ۹
                 "sqkmode": str(self.sqkmode[i]),  # 🆕 بند ۵ (2026-08-17)
+                "rcp": str(self.rcp[i]),  # 🆕 بند ۵ (2026-08-20)
             }
 
         self.socket.send_string(f"EXTRADATA {json.dumps(payload)}")
