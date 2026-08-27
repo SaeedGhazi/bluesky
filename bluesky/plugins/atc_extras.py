@@ -59,7 +59,7 @@ class ATCExtras(core.Entity):
             self.cfl        = np.array([], dtype=float)
             self.hdg        = np.array([], dtype=float)  # heading — از traf.hdg
             # 🆕 بند ۹ (2026-08-15): تفکیک ترافیک بین چند نمونهٔ BLIP_DRIVER
-            # (RBDR1..4 برای BlueSky، TBDR1..4 برای FlightGear). یک پرواز
+            # (RBD1..4 برای BlueSky، TBD1..4 برای FlightGear). یک پرواز
             # فقط در نمونه‌ای نمایش داده می‌شود که این مقدار با
             # BD_INSTANCE_NAME آن نمونه مطابقت داشته باشد.
             self.blipdriver = np.array([], dtype=object)
@@ -152,12 +152,14 @@ class ATCExtras(core.Entity):
         else: self.squawk[idx] = str_code
         return True, f"Squawk updated to {str_code}"
 
-    @stack.command(name='BLIPDRV')
-    def blipdrv(self, idx: 'acid', instance_name: str):
+    @stack.command(name='BDR')
+    def bdr(self, idx: 'acid', instance_name: str):
         """
-        🆕 بند ۹ (2026-08-15): پرواز را به یک نمونهٔ BLIP_DRIVER خاص
-        متعلق می‌کند (مثلاً "RBDR1"). دقیقاً هم‌الگوی SQWK بالا.
-        مثال استفاده در stack: BLIPDRV IRA234 RBDR1
+        🆕 بند ۹ (2026-08-15) — نام کوتاه‌شده به BDR طبق درخواست کاربر
+        (2026-08-20، سه‌حرفی مثل بقیهٔ دستورات این پلاگین): پرواز را به
+        یک نمونهٔ BLIP_DRIVER خاص متعلق می‌کند (مثلاً "RBD1"). دقیقاً
+        هم‌الگوی SQWK بالا.
+        مثال استفاده در stack: BDR IRA234 RBD1
         """
         name = str(instance_name).strip().upper()
         if isinstance(idx, list):
@@ -170,7 +172,7 @@ class ATCExtras(core.Entity):
         """
         🆕 بند ۵ (2026-08-17): حالت نظارتی transponder را ست می‌کند —
         یکی از SQK_A/SQK_AC/SQK_SNBY/SQK_ADSB/SQK_MODES/SQK_PSR.
-        دقیقاً هم‌الگوی BLIPDRV بالا. مصرف‌کننده: flat(BlueSky).html —
+        دقیقاً هم‌الگوی BDR بالا. مصرف‌کننده: flat(BlueSky).html —
         وقتی مقدار SQK_A باشد باید ارتفاع/ROC/D را پنهان و علامت سؤال
         نشان دهد (طبق خواستهٔ کاربر؛ تغییر خودِ flat(BlueSky).html در این
         نشست انجام نشده — این دستور فقط دادهٔ لازم را در دسترس می‌گذارد).
@@ -186,7 +188,7 @@ class ATCExtras(core.Entity):
     def rcp_cmd(self, idx: 'acid', rcp_name: str):
         """
         🆕 بند ۵ (2026-08-20): موقعیت کنترلی (RCP) پرواز را ست می‌کند —
-        دقیقاً هم‌الگوی BLIPDRV/SQKMODE. مستقل از blipdriver است: RCP
+        دقیقاً هم‌الگوی BDR/SQKMODE. مستقل از blipdriver است: RCP
         برای فیلتر/handover سمت نقشه (flat_sim.html) استفاده می‌شود، نه
         اینکه کدام BLIP_DRIVER فرمان‌دهی می‌کند.
         مثال استفاده در stack: RCP IRA234 RCP1
