@@ -241,6 +241,10 @@ def thread_core_reader():
                         "blipdriver": ex.get("blipdriver", ""),  # 🆕 بند ۹ (2026-08-15)
                         "sqkmode": ex.get("sqkmode", "SQK_AC"),  # 🆕 بند ۵ (2026-08-17)
                         "rcp": ex.get("rcp", ""),  # 🆕 بند ۵ (2026-08-20)
+                        # Flight Plan metadata: independent from route/FMS
+                        # ORIG/DEST and safe for display-only use.
+                        "fpldep": ex.get("fpldep", ""),
+                        "fpldest": ex.get("fpldest", ""),
                     })
 
             latest_aircraft = aircraft_list
@@ -279,6 +283,8 @@ def build_payload(aircraft: list, sim_time: str) -> str:
         "macblipdrv": [a["blipdriver"] for a in aircraft],  # 🆕 بند ۹ (2026-08-15)
         "macsqkmode": [a["sqkmode"]    for a in aircraft],  # 🆕 بند ۵ (2026-08-17)
         "macrcp"    : [a["rcp"]        for a in aircraft],  # 🆕 بند ۵ (2026-08-20)
+        "macfpldep" : [a["fpldep"]     for a in aircraft],
+        "macfpldest": [a["fpldest"]    for a in aircraft],
     })
 
 
