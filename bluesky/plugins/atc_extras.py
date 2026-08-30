@@ -72,6 +72,11 @@ class ATCExtras(core.Entity):
             # (که «کدام نمونهٔ BLIP_DRIVER» را کنترل می‌کند)؛ این یکی
             # برای فیلتر/handover سمت نقشه (flat_sim.html) است.
             self.rcp = np.array([], dtype=object)
+            # Flight Plan نمایشی: مستقل از ORIG/DEST خودِ BlueSky.
+            # ORIG/DEST waypoint واقعی FMS می‌سازند؛ این دو فقط metadata
+            # هستند و هرگز route/LNAV/VNAV را تغییر نمی‌دهند.
+            self.fpldep = np.array([], dtype=object)
+            self.fpldest = np.array([], dtype=object)
 
     # ------------------------------------------------------------------
     # 🆕 BD Command Channel — thread شنونده (فقط صف را پر می‌کند، هرگز
@@ -143,6 +148,8 @@ class ATCExtras(core.Entity):
         self.blipdriver[-n:] = [""]      * n
         self.sqkmode[-n:]    = ["SQK_AC"] * n
         self.rcp[-n:]        = [""]       * n
+        self.fpldep[-n:]     = [""]       * n
+        self.fpldest[-n:]    = [""]       * n
 
     @stack.command(name='SQWK')
     def sqwk(self, idx: 'acid', code):
@@ -198,6 +205,36 @@ class ATCExtras(core.Entity):
             for i in idx: self.rcp[i] = name
         else: self.rcp[idx] = name
         return True, f"RCP set to {name}"
+
+    @stack.command(name='FPLDEP')
+    def fpldep_cmd(self, idx: 'acid', airport_icao: str):
+        """Set displayed departure without creating a BlueSky route waypoint.
+
+        Example: ``FPLDEP IRA234 OIII``. Unlike ``ORIG``, this command has
+        no effect on the FMS, LNAV, VNAV, or aircraft trajectory.
+        """
+        value = str(airport_icao).strip().upper()
+        if isinstance(idx, list):
+            for i in idx:
+                self.fpldep[i] = value
+        else:
+            self.fpldep[idx] = value
+        return True, f"FPL departure set to {value}"
+
+    @stack.command(name='FPLDEST')
+    def fpldest_cmd(self, idx: 'acid', airport_icao: str):
+        """Set displayed destination without creating a BlueSky route waypoint.
+
+        Example: ``FPLDEST IRA234 OIIE``. Unlike ``DEST``, this command
+        cannot pull an aircraft toward a destination after its final ADDWPT.
+        """
+        value = str(airport_icao).strip().upper()
+        if isinstance(idx, list):
+            for i in idx:
+                self.fpldest[i] = value
+        else:
+            self.fpldest[idx] = value
+        return True, f"FPL destination set to {value}"
 
     @stack.command(name='SITSIT')
     def sitsit(self, idx: 'acid', situation: str):
@@ -457,6 +494,8 @@ class ATCExtras(core.Entity):
                 "blipdriver": str(self.blipdriver[i]),  # 🆕 بند ۹
                 "sqkmode": str(self.sqkmode[i]),  # 🆕 بند ۵ (2026-08-17)
                 "rcp": str(self.rcp[i]),  # 🆕 بند ۵ (2026-08-20)
+                "fpldep": str(self.fpldep[i]),
+                "fpldest": str(self.fpldest[i]),
             }
 
         self.socket.send_string(f"EXTRADATA {json.dumps(payload)}")
