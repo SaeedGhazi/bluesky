@@ -278,6 +278,41 @@ class ATCExtras(core.Entity):
     # اصلاً انباشته نمی‌شود.
     ORBIT_LEAD_ANGLE_DEG = 25.0   # چقدر جلوتر از هدینگ فعلی، هدف چرخش قرار گیرد
 
+    @stack.command(name='BDSTATUS')
+    def bdstatus_cmd(self, idx: 'acid', key: str, value: str = ""):
+        """
+        🆕 2026-09-01 (معماری STATUS — دستور عمومی): یک آیتم status را
+        ست یا پاک می‌کند.
+
+        استفاده:
+            BDSTATUS IRA234 DCT           → status["DCT"] = True
+            BDSTATUS IRA234 ALT 12000     → status["ALT"] = "12000"
+            BDSTATUS IRA234 DCT OFF       → آیتم DCT حذف می‌شود
+            BDSTATUS IRA234 CLEAR         → کل status خالی می‌شود
+
+        ⚠️ نام `BDSTATUS` (نه `STATUS`) عمداً انتخاب شد تا با هیچ دستور
+        بومی احتمالی BlueSky تداخل نکند — دقیقاً همان محافظه‌کاری که در
+        نام‌گذاری BDR/SQKMODE رعایت شده بود.
+
+        این دستور پایهٔ مراحل بعدی معماری STATUS است (ALT/HDG/SPD با
+        حذف خودکار هنگام رسیدن به هدف)، ولی همین حالا برای علامت‌گذاری
+        DCT در مسیر نقطه‌ای استفاده می‌شود.
+        """
+        k = str(key).strip().upper()
+        v = str(value).strip().upper()
+        targets = idx if isinstance(idx, list) else [idx]
+
+        for i in targets:
+            if k == "CLEAR":
+                self.status[i].clear()
+            elif v in ("OFF", "DEL", "REMOVE"):
+                self.status[i].pop(k, None)
+            elif v == "":
+                self.status[i][k] = True
+            else:
+                self.status[i][k] = value.strip()
+        return True, f"status updated: {k}"
+
     @stack.command(name='ORBIT')
     def orbit_cmd(self, idx: 'acid', direction: str):
         """
