@@ -58,6 +58,21 @@ class ATCExtras(core.Entity):
             self.ident_time = np.array([], dtype=float)
             self.cfl        = np.array([], dtype=float)
             self.hdg        = np.array([], dtype=float)  # heading — از traf.hdg
+            # 🆕 2026-08-31 (مرحلهٔ ۱ معماری STATUS): وضعیت فرمان جاری هر
+            # پرواز — یعنی «الان در حال انجام چه فرمانی است». طبق تصمیم
+            # کاربر، ساختار *داخلی* یک dict است (نه رشتهٔ خام) تا
+            # چک‌کردن/حذف یک آیتم یک عملیات dict ساده باشد نه دستکاری
+            # رشته؛ تبدیل به رشتهٔ خوانا (مثل "ORBIT_R;ALT(9000)") فقط
+            # هنگام ارسال تلمتری انجام می‌شود (نگاه _status_to_str).
+            #
+            # ⚠️ چرا رشتهٔ خام نه: خودِ BlueSky در stackbase.py هر رشته را
+            # بی‌قیدوشرط روی «;» می‌شکند (نگاه تصمیم ۱۷ ARCHITECTURE.md) —
+            # نگه‌داشتن ساختار به‌صورت dict این ریسک را کاملاً دور می‌زند.
+            #
+            # مرحلهٔ ۱ فقط ORBIT_L/ORBIT_R را پیاده می‌کند؛ کلیدهای
+            # آیندهٔ برنامه‌ریزی‌شده: ALT/HDG/SPD/DCT/RDL/HLD/SID/STAR/
+            # IAP/RTE (نگاه CHANGELOG برای نقشهٔ کامل مراحل).
+            self.status = np.array([], dtype=object)
             # 🆕 بند ۹ (2026-08-15): تفکیک ترافیک بین چند نمونهٔ BLIP_DRIVER
             # (RBD1..4 برای BlueSky، TBD1..4 برای FlightGear). یک پرواز
             # فقط در نمونه‌ای نمایش داده می‌شود که این مقدار با
@@ -150,6 +165,12 @@ class ATCExtras(core.Entity):
         self.rcp[-n:]        = [""]       * n
         self.fpldep[-n:]     = [""]       * n
         self.fpldest[-n:]    = [""]       * n
+        # 🆕 2026-08-31: هر پرواز جدید با status خالی شروع می‌شود.
+        # ⚠️ نکتهٔ مهم: هر عضو باید یک dict *مستقل* باشد — نه یک dict
+        # مشترک بین همهٔ پروازها (که با [{}] * n اتفاق می‌افتاد و یک
+        # باگ کلاسیک پایتون است: تغییر status یک پرواز، همهٔ پروازها را
+        # تغییر می‌داد).
+        self.status[-n:]     = [{} for _ in range(n)]
 
     @stack.command(name='SQWK')
     def sqwk(self, idx: 'acid', code):
@@ -235,6 +256,134 @@ class ATCExtras(core.Entity):
         else:
             self.fpldest[idx] = value
         return True, f"FPL destination set to {value}"
+
+    # ────────────────────────────────────────────────────────────────
+    # 🆕 2026-08-31 — معماری STATUS، مرحلهٔ ۱: ORBIT پیوسته
+    # ────────────────────────────────────────────────────────────────
+    # پارامترهای قابل‌تنظیم چرخش پیوسته
+    ORBIT_TURN_RATE_DEG_PER_SEC = 3.0   # نرخ چرخش استاندارد (rate-one ≈ ۳°/ثانیه)
+    # 🆕 رفع باگ 2026-08-31 (گزارش کاربر: «وقتی به هدینگ اولیه می‌رسید،
+    # چند استپ به جهت مخالف می‌چرخید»): نسخهٔ اول trk را از *مقدار قبلی
+    # خودش* جلو می‌برد (trk += step). مشکل: اگر نرخ چرخش واقعی هواپیما
+    # (که به نوع/سرعت/شیب آن بستگی دارد) کمتر از نرخی باشد که ما trk را
+    # جلو می‌بریم، trk به‌تدریج از هدینگ واقعی جلو می‌افتد. این خطا
+    # انباشته می‌شود تا از ۱۸۰ درجه رد شود — و آن‌وقت اتوپایلوت BlueSky
+    # (که همیشه از کوتاه‌ترین قوس می‌چرخد) ناگهان جهت را برعکس تشخیص
+    # می‌دهد. دقیقاً همان «چند استپ برعکس» که کاربر دید، و دقیقاً وقتی
+    # رخ می‌دهد که یک دور کامل نزدیک شده باشد.
+    #
+    # راه‌حل: به‌جای انباشتن روی trk قبلی، هر بار trk را نسبت به هدینگ
+    # *واقعی فعلی* هواپیما ست می‌کنیم (هدینگ فعلی + یک زاویهٔ ثابت
+    # «هدایت»). این‌طور trk هرگز نمی‌تواند از هواپیما جلو بیفتد — خطا
+    # اصلاً انباشته نمی‌شود.
+    ORBIT_LEAD_ANGLE_DEG = 25.0   # چقدر جلوتر از هدینگ فعلی، هدف چرخش قرار گیرد
+
+    @stack.command(name='ORBIT')
+    def orbit_cmd(self, idx: 'acid', direction: str):
+        """
+        🆕 2026-08-31: چرخش پیوستهٔ نامحدود به راست یا چپ.
+
+        استفاده: ``ORBIT IRA234 R``  یا  ``ORBIT IRA234 L``
+        برای توقف: ``ORBIT IRA234 OFF`` (یا هر فرمان جهت‌دهی دیگر مثل
+        HDG/DCT که خودش status را پاک می‌کند — نگاه _clear_heading_status).
+
+        ⚠️ چرا اینجا (سمت BlueSky) و نه در BD:
+        نسخهٔ قبلی این قابلیت یک QTimer در خودِ BD بود که هر ۳۰۰ms یک
+        دستور HDG تازه می‌فرستاد — یعنی بیش از ۳ دستور در ثانیه برای هر
+        پرواز در حال ORBIT. کاربر گزارش داد این باعث «رفتار عجیب» و
+        «چیزی شبیه هنگ» در اجرای بقیهٔ دستورات می‌شد (صف دستورات پر
+        می‌شد). حالا چرخش کاملاً سمت BlueSky اجرا می‌شود: صفر دستور
+        شبکه‌ای در طول مانور.
+        """
+        value = str(direction).strip().upper()
+        targets = idx if isinstance(idx, list) else [idx]
+
+        if value in ("OFF", "STOP", "CANCEL"):
+            for i in targets:
+                self.status[i].pop("ORBIT_L", None)
+                self.status[i].pop("ORBIT_R", None)
+            return True, "ORBIT cancelled"
+
+        if value in ("R", "RIGHT"):
+            key = "ORBIT_R"
+        elif value in ("L", "LEFT"):
+            key = "ORBIT_L"
+        else:
+            return False, f"ORBIT: direction must be R/L/OFF (got {value})"
+
+        for i in targets:
+            # تعارض‌های منطقی (طبق تحلیل کاربر): یک پرواز نمی‌تواند
+            # هم‌زمان ORBIT و HDG داشته باشد (چون جهتش دائم عوض می‌شود)،
+            # و دو ORBIT مخالف هم بی‌معنی است.
+            self.status[i].pop("ORBIT_L", None)
+            self.status[i].pop("ORBIT_R", None)
+            self.status[i].pop("HDG", None)
+            self.status[i][key] = True
+            # LNAV باید خاموش شود وگرنه مسیر فعال، هدینگ را پس می‌گیرد
+            # (دقیقاً همان کاری که خودِ دستور HDG بومی BlueSky می‌کند —
+            # نگاه autopilot.py::selhdgcmd که swlnav را False می‌کند).
+            try:
+                traf.swlnav[i] = False
+            except Exception:
+                pass
+        return True, f"{key} engaged"
+
+    @core.timed_function(name='atc_orbit_exec', dt=0.5)
+    def _exec_orbit(self):
+        """
+        🆕 2026-08-31: اجرای چرخش پیوسته برای هر پروازی که ORBIT_L/R در
+        status دارد.
+
+        ⚠️ چرا مستقیم traf.ap.trk را ست می‌کنیم و نه stack.stack("HDG ..."):
+        با خواندن کد واقعی BlueSky (autopilot.py::selhdgcmd) تأیید شد که
+        دستور HDG در نهایت دقیقاً همین دو کار را می‌کند — `trk[idx]=hdg`
+        و `swlnav[idx]=False`. پس ست‌کردن مستقیم، همان اثر را دارد بدون
+        عبور از صف stack (که همان مسیر پرترافیکی بود که باعث کندی
+        می‌شد).
+
+        ⚠️ چرا traf.hdg (هدینگ واقعی) مبنا است و نه traf.ap.trk قبلی:
+        نگاه توضیح کامل بالای ORBIT_LEAD_ANGLE_DEG — خلاصه: انباشتن روی
+        trk قبلی باعث می‌شد trk از هواپیمای واقعی جلو بیفتد و در نهایت
+        خطا از ۱۸۰ درجه رد شود، که اتوپایلوت را وادار به چرخش معکوس
+        می‌کرد (باگ گزارش‌شدهٔ کاربر).
+        """
+        for i in range(len(traf.id)):
+            st = self.status[i]
+            if not st:
+                continue
+            if st.get("ORBIT_R"):
+                sign = +1.0
+            elif st.get("ORBIT_L"):
+                sign = -1.0
+            else:
+                continue
+            try:
+                # هدینگ *واقعی* فعلی هواپیما (نه هدف قبلی اتوپایلوت)
+                current_hdg = float(traf.hdg[i])
+                traf.ap.trk[i] = (current_hdg + sign * self.ORBIT_LEAD_ANGLE_DEG) % 360.0
+                traf.swlnav[i] = False
+            except Exception as exc:  # noqa: BLE001 — مرز با هستهٔ BlueSky
+                logger.error(f"[ORBIT] اجرای چرخش برای {traf.id[i]} ناموفق: {exc}")
+
+    @staticmethod
+    def _status_to_str(status_dict: dict) -> str:
+        """
+        🆕 2026-08-31: تبدیل ساختار داخلی dict به رشتهٔ خوانا برای نمایش
+        (مثلاً "ORBIT_R;ALT(9000)") — فقط برای تلمتری/نمایش، نه برای
+        فرستادن به stack.
+
+        مقدار True (پرچم بدون پارامتر، مثل ORBIT_R) فقط نام کلید را
+        می‌دهد؛ بقیه به‌شکل KEY(value) نمایش داده می‌شوند.
+        """
+        if not status_dict:
+            return ""
+        parts = []
+        for key, value in status_dict.items():
+            if value is True:
+                parts.append(key)
+            else:
+                parts.append(f"{key}({value})")
+        return ";".join(parts)
 
     @stack.command(name='SITSIT')
     def sitsit(self, idx: 'acid', situation: str):
@@ -496,6 +645,11 @@ class ATCExtras(core.Entity):
                 "rcp": str(self.rcp[i]),  # 🆕 بند ۵ (2026-08-20)
                 "fpldep": str(self.fpldep[i]),
                 "fpldest": str(self.fpldest[i]),
+                # 🆕 2026-08-31: وضعیت فرمان جاری — به‌صورت رشتهٔ خوانا
+                # (نه dict خام) چون این فقط برای نمایش/گزارش در BD و
+                # نقشه است. تبدیل اینجا انجام می‌شود تا مصرف‌کننده‌ها
+                # لازم نباشد ساختار داخلی را بشناسند.
+                "status": self._status_to_str(self.status[i]),
             }
 
         self.socket.send_string(f"EXTRADATA {json.dumps(payload)}")
