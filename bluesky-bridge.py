@@ -245,6 +245,9 @@ def thread_core_reader():
                         # ORIG/DEST and safe for display-only use.
                         "fpldep": ex.get("fpldep", ""),
                         "fpldest": ex.get("fpldest", ""),
+                        # 🆕 2026-08-31: وضعیت فرمان جاری (رشتهٔ خوانا،
+                        # ساخته‌شده در atc_extras._status_to_str)
+                        "status": ex.get("status", ""),
                     })
 
             latest_aircraft = aircraft_list
@@ -285,6 +288,7 @@ def build_payload(aircraft: list, sim_time: str) -> str:
         "macrcp"    : [a["rcp"]        for a in aircraft],  # 🆕 بند ۵ (2026-08-20)
         "macfpldep" : [a["fpldep"]     for a in aircraft],
         "macfpldest": [a["fpldest"]    for a in aircraft],
+        "macstatus" : [a["status"]     for a in aircraft],  # 🆕 2026-08-31
     })
 
 
